@@ -3,10 +3,8 @@ import { QRCodeCanvas } from 'qrcode.react';
 import { Link, Type, Mail, Phone, MessageSquare, Wifi, Contact, MapPin, Calendar, Upload, RefreshCw, Download, Image as ImageIcon, Copy } from 'lucide-react';
 
 export default function App() {
-  // --- STATE QUẢN LÝ TAB ---
   const [activeTab, setActiveTab] = useState('URL');
 
-  // --- STATE QUẢN LÝ TOÀN BỘ DỮ LIỆU NHẬP ---
   const [formData, setFormData] = useState({
     url: 'https://example.com',
     text: '',
@@ -32,7 +30,6 @@ export default function App() {
     eventDesc: ''
   });
 
-  // --- TÙY CHỈNH GIAO DIỆN QR ---
   const [fgColor, setFgColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#FFFFFF');
   const [size, setSize] = useState(300);
@@ -40,7 +37,6 @@ export default function App() {
   const [errorLevel, setErrorLevel] = useState('M');
   const [logo, setLogo] = useState(null);
 
-  // --- HÀM XỬ LÝ ---
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
@@ -60,7 +56,6 @@ export default function App() {
     link.click();
   };
 
-  // --- HÀM TẠO CHUỖI DỮ LIỆU CHUẨN CHO QR CODE ---
   const generateQRValue = () => {
     switch (activeTab) {
       case 'URL': return formData.url || ' ';
@@ -82,7 +77,6 @@ export default function App() {
 
   const qrValue = generateQRValue();
 
-  // --- DANH SÁCH MENU ---
   const qrTypes = [
     { id: 'URL', icon: <Link size={16} />, label: 'URL' },
     { id: 'Text', icon: <Type size={16} />, label: 'Văn bản' },
@@ -95,8 +89,8 @@ export default function App() {
     { id: 'Event', icon: <Calendar size={16} />, label: 'Sự Kiện' },
   ];
 
-  // --- COMPONENT TẠO FORM DÙNG CHUNG ---
-  const InputField = ({ label, type = "text", field, placeholder, isTextarea }) => (
+  // ĐÃ SỬA: Biến Component thành một Helper Function bình thường
+  const renderInput = (label, field, placeholder, type = "text", isTextarea = false) => (
     <div className="mb-4">
       <label className="block text-sm font-semibold text-gray-300 mb-2">{label}</label>
       {isTextarea ? (
@@ -111,10 +105,8 @@ export default function App() {
     <div className="min-h-screen bg-[#0e0e0e] text-gray-200 p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-6">
         
-        {/* === CỘT TRÁI: ĐIỀU KHIỂN === */}
+        {/* === CỘT TRÁI === */}
         <div className="w-full lg:w-3/5 space-y-6">
-          
-          {/* 1. Menu Loại Mã QR */}
           <div className="bg-[#1c1c1e] border border-gray-800 rounded-xl p-5 shadow-lg">
             <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <RefreshCw size={20} className="text-green-500" /> Chọn Loại Mã QR
@@ -131,29 +123,29 @@ export default function App() {
             </div>
           </div>
 
-          {/* 2. Nhập Dữ Liệu (Đổi linh hoạt theo Tab) */}
           <div className="bg-[#1c1c1e] border border-gray-800 rounded-xl p-5 shadow-lg">
             <h2 className="text-lg font-semibold text-white mb-6 flex items-center gap-2">
               <Type size={20} className="text-green-500" /> Nhập Dữ Liệu
             </h2>
             
             <div className="space-y-4">
-              {activeTab === 'URL' && <InputField label="URL" field="url" type="url" placeholder="https://example.com" />}
-              {activeTab === 'Text' && <InputField label="Văn bản" field="text" isTextarea placeholder="Nhập nội dung văn bản..." />}
-              {activeTab === 'Email' && <InputField label="Email" field="email" type="email" placeholder="example@gmail.com" />}
-              {activeTab === 'Phone' && <InputField label="Số điện thoại" field="phone" type="tel" placeholder="+84 123 456 789" />}
+              {/* ĐÃ SỬA: Gọi hàm renderInput thay vì thẻ Component */}
+              {activeTab === 'URL' && renderInput('URL', 'url', 'https://example.com', 'url')}
+              {activeTab === 'Text' && renderInput('Văn bản', 'text', 'Nhập nội dung văn bản...', 'text', true)}
+              {activeTab === 'Email' && renderInput('Email', 'email', 'example@gmail.com', 'email')}
+              {activeTab === 'Phone' && renderInput('Số điện thoại', 'phone', '+84 123 456 789', 'tel')}
               
               {activeTab === 'SMS' && (
                 <>
-                  <InputField label="Số điện thoại" field="smsPhone" type="tel" placeholder="+84..." />
-                  <InputField label="Tin nhắn" field="smsMsg" isTextarea placeholder="Nội dung tin nhắn..." />
+                  {renderInput('Số điện thoại', 'smsPhone', '+84...', 'tel')}
+                  {renderInput('Tin nhắn', 'smsMsg', 'Nội dung tin nhắn...', 'text', true)}
                 </>
               )}
 
               {activeTab === 'WiFi' && (
                 <>
-                  <InputField label="Tên mạng (SSID)" field="wifiSsid" placeholder="MyWiFiNetwork" />
-                  <InputField label="Mật khẩu" field="wifiPass" type="password" placeholder="password123" />
+                  {renderInput('Tên mạng (SSID)', 'wifiSsid', 'MyWiFiNetwork')}
+                  {renderInput('Mật khẩu', 'wifiPass', 'password123', 'password')}
                   <div className="mb-4">
                     <label className="block text-sm font-semibold text-gray-300 mb-2">Loại bảo mật</label>
                     <select value={formData.wifiType} onChange={(e) => handleInputChange('wifiType', e.target.value)} className="w-full bg-[#18181b] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-green-500">
@@ -171,35 +163,34 @@ export default function App() {
               {activeTab === 'VCard' && (
                 <>
                   <div className="grid grid-cols-2 gap-4">
-                    <InputField label="Tên" field="vcardFirst" placeholder="John" />
-                    <InputField label="Họ" field="vcardLast" placeholder="Doe" />
+                    {renderInput('Tên', 'vcardFirst', 'John')}
+                    {renderInput('Họ', 'vcardLast', 'Doe')}
                   </div>
-                  <InputField label="Tổ chức" field="vcardOrg" placeholder="Company Name" />
-                  <InputField label="Số điện thoại" field="vcardPhone" type="tel" placeholder="+1234567890" />
-                  <InputField label="Email" field="vcardEmail" type="email" placeholder="email@example.com" />
-                  <InputField label="Website" field="vcardUrl" type="url" placeholder="https://example.com" />
-                  <InputField label="Địa chỉ" field="vcardAddress" placeholder="123 Main St, City, Country" />
+                  {renderInput('Tổ chức', 'vcardOrg', 'Company Name')}
+                  {renderInput('Số điện thoại', 'vcardPhone', '+1234567890', 'tel')}
+                  {renderInput('Email', 'vcardEmail', 'email@example.com', 'email')}
+                  {renderInput('Website', 'vcardUrl', 'https://example.com', 'url')}
+                  {renderInput('Địa chỉ', 'vcardAddress', '123 Main St, City, Country')}
                 </>
               )}
 
               {activeTab === 'Location' && (
                 <div className="grid grid-cols-2 gap-4">
-                  <InputField label="Vĩ độ (Latitude)" field="locLat" placeholder="21.028511" />
-                  <InputField label="Kinh độ (Longitude)" field="locLng" placeholder="105.804817" />
+                  {renderInput('Vĩ độ (Latitude)', 'locLat', '21.028511')}
+                  {renderInput('Kinh độ (Longitude)', 'locLng', '105.804817')}
                 </div>
               )}
 
               {activeTab === 'Event' && (
                 <>
-                  <InputField label="Tên sự kiện" field="eventName" placeholder="Meeting" />
-                  <InputField label="Địa điểm" field="eventLocation" placeholder="Office" />
-                  <InputField label="Mô tả sự kiện" field="eventDesc" isTextarea placeholder="Team meeting description" />
+                  {renderInput('Tên sự kiện', 'eventName', 'Meeting')}
+                  {renderInput('Địa điểm', 'eventLocation', 'Office')}
+                  {renderInput('Mô tả sự kiện', 'eventDesc', 'Team meeting description', 'text', true)}
                 </>
               )}
             </div>
           </div>
 
-          {/* 3. Tùy Chỉnh (Giữ nguyên) */}
           <div className="bg-[#1c1c1e] border border-gray-800 rounded-xl p-5 shadow-lg">
             <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <Type size={20} className="text-green-500" /> Tùy Chỉnh
@@ -232,7 +223,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* === CỘT PHẢI: PREVIEW === */}
+        {/* === CỘT PHẢI === */}
         <div className="w-full lg:w-2/5 space-y-6">
           <div className="bg-[#1c1c1e] border border-gray-800 rounded-xl p-5 shadow-lg flex flex-col items-center justify-center min-h-[400px]">
              <h2 className="text-lg font-semibold text-white mb-6 w-full flex items-center gap-2">
